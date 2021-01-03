@@ -1,19 +1,22 @@
 package com.bob.savestatesingletonetest;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ConstantKeys {
 
-    public final String COUNTER_KAY = "COUNTER_KAY";
+
     public TextView counterText;
     public Button counterBtn;
+    public Button counterChanger;
     public int counter = 0;
 
 
@@ -22,17 +25,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final MainPresenter instance = MainPresenter.getInstance();
+        final MainPresenter presenter = MainPresenter.getInstance();
 
         counterText = findViewById(R.id.counterView);
         counterBtn = findViewById(R.id.counterButton);
+        counterChanger = findViewById(R.id.counterСhangerBtn);
 
-        counterText.setText(String.valueOf(instance.getCounter()));
+        counterChanger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Parcel parcel = new Parcel();
+
+                parcel.counter = Integer.parseInt(counterText.getText().toString());
+
+                Intent intent  = new Intent(MainActivity.this,MainActivity2.class);
+                intent.putExtra(COUNTER_KAY,parcel);
+                startActivityForResult(intent,REQUEST_CODE);
+            }
+        });
+        counterText.setText(String.valueOf(presenter.getCounter()));
 
         if(savedInstanceState != null){
             Toast.makeText(getApplicationContext(),"Second Start", Toast.LENGTH_SHORT).show();
-//            counter = savedInstanceState.getInt(COUNTER_KAY);
-            counterText.setText(String.valueOf(instance.getCounter()));
+//            counter = savedInstanceState.getInt(COUNTER_KEY);
+            counterText.setText(String.valueOf(presenter.getCounter()));
         }
 
 //        counterText.setText(String.valueOf(counter));
@@ -40,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    instance.incrementCounter();
-                    counterText.setText(String.valueOf(instance.getCounter()));
+                    presenter.incrementCounter();
+                    counterText.setText(String.valueOf(presenter.getCounter()));
 //                counter++;
 //                counterText.setText(String.valueOf(counter));
             }
@@ -58,5 +74,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
 //        outState.putInt(COUNTER_KAY,counter);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode != REQUEST_CODE){
+            super.onActivityResult(requestCode, resultCode, data);
+            return;
+        }
+        if(resultCode == RESULT_OK){
+            counterText.setText(data.getStringExtra(COUNTER_RESULT));
+            final MainPresenter presenter =  MainPresenter.getInstance();
+            presenter.setCounter(counterText.getText().toString());
+
+        }
+
     }
 }
