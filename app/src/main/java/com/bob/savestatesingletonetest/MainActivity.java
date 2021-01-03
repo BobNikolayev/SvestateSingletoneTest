@@ -16,27 +16,34 @@ public class MainActivity extends AppCompatActivity {
     public Button counterBtn;
     public int counter = 0;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final MainPresenter instance = MainPresenter.getInstance();
+
         counterText = findViewById(R.id.counterView);
         counterBtn = findViewById(R.id.counterButton);
 
-        if(savedInstanceState == null){
-            Toast.makeText(getApplicationContext(),  "First Start", Toast.LENGTH_SHORT).show();
-        }else{
+        counterText.setText(String.valueOf(instance.getCounter()));
+
+        if(savedInstanceState != null){
             Toast.makeText(getApplicationContext(),"Second Start", Toast.LENGTH_SHORT).show();
-            counter = savedInstanceState.getInt(COUNTER_KAY);
+//            counter = savedInstanceState.getInt(COUNTER_KAY);
+            counterText.setText(String.valueOf(instance.getCounter()));
         }
 
-        counterText.setText(String.valueOf(counter));
+//        counterText.setText(String.valueOf(counter));
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                counter++;
-                counterText.setText(String.valueOf(counter));
+                    instance.incrementCounter();
+                    counterText.setText(String.valueOf(instance.getCounter()));
+//                counter++;
+//                counterText.setText(String.valueOf(counter));
             }
         };
         counterBtn.setOnClickListener(onClickListener);
@@ -49,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putInt(COUNTER_KAY,counter);
+//        outState.putInt(COUNTER_KAY,counter);
         super.onSaveInstanceState(outState);
     }
 }
